@@ -239,7 +239,7 @@ const SmartIntegrationsPanel = ({
                                 {event.location && (
                                   <span className="flex items-center">
                                     <MapPin className="w-3 h-3 mr-1" />
-                                    {event.location}
+                                    {typeof event.location === 'string' ? event.location : event.location.name || event.location.address || 'Unknown location'}
                                   </span>
                                 )}
                                 {event.distance && (
@@ -323,7 +323,10 @@ const SmartIntegrationsPanel = ({
                               className="p-3 bg-green-50 rounded-lg border border-green-200"
                             >
                               <div className="text-sm font-medium text-gray-800">{event.name}</div>
-                              <div className="text-xs text-gray-600">{event.location}</div>
+                              <div className="text-xs text-gray-600">
+                                {typeof event.location === 'string' ? event.location : 
+                                 (event.location?.name || event.location?.address || 'Location not specified')}
+                              </div>
                             </div>
                           ))}
                         </div>

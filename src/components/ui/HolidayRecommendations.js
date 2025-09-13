@@ -251,20 +251,7 @@ const HolidayRecommendations = ({
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex space-x-3 pt-2">
-                    <button
-                      onClick={() => handleApplyHolidayTheme(holiday)}
-                      className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-200 font-medium text-sm"
-                    >
-                      Apply Holiday Theme
-                    </button>
-                    {userLocation && (
-                      <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl transition-colors font-medium text-sm">
-                        Find Local Events
-                      </button>
-                    )}
-                  </div>
+                  {/* Holiday information is now display-only - buttons removed as requested */}
                 </div>
               )}
             </div>

@@ -301,18 +301,7 @@ const ShareView = ({ themes, selectedTheme, scheduledActivities, generateSummary
 
           {/* Action Buttons */}
           <div className="flex flex-wrap justify-center gap-4">
-            <button 
-              onClick={handleShare} 
-              disabled={isGenerating}
-              className="btn-primary flex items-center space-x-2 disabled:opacity-50"
-            >
-              {isGenerating ? (
-                <div className="loading-spinner" />
-              ) : (
-                <Share2 className="w-5 h-5" />
-              )}
-              <span>Share Image</span>
-            </button>
+            {/* Share image button removed as requested - only download and social sharing available */}
             
             <button 
               onClick={handleDownload} 
