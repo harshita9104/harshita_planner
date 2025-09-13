@@ -24,7 +24,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 // New content is available, prompt user to refresh
-                if (confirm('A new version of Weekendly is available. Refresh to update?')) {
+                if (window.confirm('A new version of Weekendly is available. Refresh to update?')) {
                   window.location.reload();
                 }
               }
