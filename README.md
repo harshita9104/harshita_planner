@@ -96,7 +96,7 @@ npm install
 
 # Start development server
 npm start
-
+```
 ---
 Weekendly was built to not only fulfill the core requirements of the challenge -activity browsing, scheduling, editing, and visualization, but also to push further into the bonus and super-stretch layers, the project delivers both functional depth and an enjoyable user experience.
 
