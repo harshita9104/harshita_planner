@@ -122,7 +122,8 @@ npm run serve
 ##  Testing
 
 The project includes a comprehensive test suite covering all core functionality and user interactions.
-<img width="1854" height="1048" alt="image" src="https://github.com/user-attachments/assets/9d1282e2-6f36-4338-a769-b2858384aa15" />
+
+<img width="1854" height="1048" alt="image" src="https://github.com/user-attachments/assets/f8d1cd8b-7f1f-4f69-be5a-75f9bcfab813" />
 
 
 ### Test Coverage
@@ -148,12 +149,12 @@ The test suite includes **20+ test cases** covering:
 - ✅ Smart integrations panel accessibility
 - ✅ Long weekend planning (3-4 days)
 
-**💾 Data & Performance:**
+** Data & Performance:**
 - ✅ localStorage persistence functionality
 - ✅ Performance metrics and load time validation
 - ✅ Error handling with error boundaries
 
-**♿ Accessibility & UX:**
+** Accessibility & UX:**
 - ✅ Responsive navigation elements
 - ✅ Basic accessibility features (ARIA, semantic HTML)
 - ✅ Visual richness with icons and categories
@@ -199,7 +200,7 @@ The test suite follows **behavior-driven testing** principles:
 - **Performance Testing**: Validates load times and responsiveness
 - **Error Handling**: Tests graceful degradation and error boundaries
 
-```
+
 
 ---
 Weekendly was built to not only fulfill the core requirements of the challenge -activity browsing, scheduling, editing, and visualization, but also to push further into the bonus and super-stretch layers, the project delivers both functional depth and an enjoyable user experience.
