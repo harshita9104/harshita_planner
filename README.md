@@ -122,6 +122,8 @@ npm run serve
 ##  Testing
 
 The project includes a comprehensive test suite covering all core functionality and user interactions.
+<img width="1854" height="1048" alt="image" src="https://github.com/user-attachments/assets/9d1282e2-6f36-4338-a769-b2858384aa15" />
+
 
 ### Test Coverage
 
