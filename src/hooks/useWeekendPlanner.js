@@ -7,12 +7,10 @@ import persistenceService from '../services/persistenceService';
 import moodTrackingService from '../services/moodTrackingService';
 
 /**
- * 🎯 Weekend Planner Hook - The Brain of Our Application
+ * Weekend Planner Hook - The Brain of Our Application
  * 
  * This custom React hook manages all the complex state logic for our weekend planning app.
- * I've organized it to handle everything from drag-and-drop interactions to AI-powered 
- * activity recommendations. Think of this as the "mission control" for your weekend!
- * 
+ * I've organized it to handle everything from drag-and-drop interactions. 
  * Key responsibilities:
  * • Managing weekend schedules with conflict detection
  * • Providing intelligent activity recommendations based on user behavior  
@@ -20,8 +18,6 @@ import moodTrackingService from '../services/moodTrackingService';
  * • Handling all the drag-and-drop magic you see in the UI
  * • Persisting your plans so you never lose your perfect weekend
  * 
- * The code is written to be both performant and readable - because maintainable
- * code is happy code, and happy code makes for better user experiences! 😊
  */
 
 const useWeekendPlanner = () => {
@@ -96,12 +92,12 @@ const useWeekendPlanner = () => {
           (error) => {
             console.error("Error getting location:", error);
             // Fallback to a default location if user denies access
-            fetchWeather(51.5074, -0.1278); // London
+            fetchWeather(28.6139, 77.2090); // New Delhi
           }
         );
       } else {
         // Fallback to a default location if geolocation is not supported
-        fetchWeather(51.5074, -0.1278); // London
+        fetchWeather(28.6139, 77.2090); // New Delhi
       }
     };
 
@@ -178,7 +174,7 @@ const useWeekendPlanner = () => {
         if (indoorActivities.length > totalActivities / 2 && totalActivities > 0) {
           toast((t) => (
             <div className="flex items-center space-x-2">
-              <span>☀️ Perfect weather for {day}! Consider adding some outdoor activities to enjoy the sunshine.</span>
+              <span>Perfect weather for {day}! Consider adding some outdoor activities to enjoy the sunshine.</span>
               <button
                 className="ml-2 px-2 py-1 bg-green-500 text-white rounded text-xs"
                 onClick={() => toast.dismiss(t.id)}
@@ -207,7 +203,7 @@ const useWeekendPlanner = () => {
   };
 
   // Check for time conflicts with existing activities
-  // 🔍 Smart conflict detection - because nobody wants to be in two places at once!
+  // Smart conflict detection - because nobody wants to be in two places at once!
   // This function checks if adding an activity would create a time overlap with existing ones.
   // I'm using a clever time interval overlap algorithm that feels natural to understand.
   const isConflict = useCallback((day, activity, newTime) => {
@@ -377,7 +373,7 @@ const useWeekendPlanner = () => {
   // Holiday-aware weekend planning
   const suggestLongWeekendPlan = useCallback(async () => {
     try {
-      const upcomingHolidays = holidayService.getUpcomingLongWeekends(60); // Next 60 days
+      const upcomingHolidays = holidayService.getUpcomingLongWeekends(60, userLocation); // Next 60 days
       
       if (upcomingHolidays.length === 0) {
         toast.info('No upcoming long weekends in the next 60 days');
@@ -395,7 +391,7 @@ const useWeekendPlanner = () => {
           planningTips: nextHoliday.planningTips
         };
         
-        toast.success(`🎉 Long weekend opportunity: ${nextHoliday.name}!`, {
+        toast.success(` Long weekend opportunity: ${nextHoliday.name}!`, {
           duration: 5000
         });
         
@@ -465,6 +461,9 @@ const useWeekendPlanner = () => {
       const location = await smartIntegrationsService.getCurrentLocation();
       setUserLocation(location);
       
+      // Set location for holiday service to detect correct region
+      holidayService.setUserLocation(location);
+      
       // Load holiday recommendations
       const holidays = holidayService.getHolidayRecommendations(selectedTheme);
       setHolidayRecommendations(holidays);
@@ -489,7 +488,7 @@ const useWeekendPlanner = () => {
         hasOfflineSupport: true
       });
       
-      toast.success('🚀 Advanced features loaded!', { 
+      toast.success(' Advanced features loaded!', { 
         duration: 2000,
         position: 'bottom-center'
       });
@@ -770,7 +769,7 @@ const useWeekendPlanner = () => {
     const currentTheme = themes[selectedTheme];
     const themeName = currentTheme?.name || 'Amazing Weekend';
     
-    return `My ${themeName.toLowerCase()} includes ${totalActivities} amazing activities! 🎉`;
+    return `My ${themeName.toLowerCase()} includes ${totalActivities} amazing activities! `;
   };
 
   // Handle changes to the weekend option (e.g., twoDays, threeDays)
@@ -815,7 +814,6 @@ const useWeekendPlanner = () => {
   };
 
   // Smart recommendation system based on user preferences and activity patterns
-  // 🧠 AI-powered recommendation engine - this is where the magic happens!
   // I built this to learn from your choices and suggest activities you'll actually enjoy.
   // It's like having a friend who really knows your taste in weekend activities.
   const generateSmartRecommendations = useCallback(() => {
@@ -959,7 +957,7 @@ const useWeekendPlanner = () => {
     if (totalActivities >= 2 && totalActivities <= 6 && totalActivities < totalPossibleSlots * 0.7) {
       const timer = setTimeout(() => {
         showSmartRecommendations();
-      }, 3000); // Show after 3 seconds of activity
+      }, 6000); // Show after 6 seconds of activity
       
       return () => clearTimeout(timer);
     }

@@ -94,9 +94,111 @@ cd weekendly
 # Install dependencies
 npm install
 
+```
+
+### Available Commands
+```bash
 # Start development server
 npm start
+
+# Run tests
+npm test
+
+# Run tests without watch mode
+npm test -- --watchAll=false
+
+# Run tests with coverage
+npm test -- --coverage --watchAll=false
+
+# Build for production
+npm run build
+
+# Serve production build locally
+npm run serve
 ```
+
+---
+
+##  Testing
+
+The project includes a comprehensive test suite covering all core functionality and user interactions.
+
+### Test Coverage
+
+#### Core Functionality Tests (`App.test.js`)
+The test suite includes **20+ test cases** covering:
+
+** Basic Functionality:**
+- ✅ App rendering and initialization
+- ✅ Navigation between Browse and Plan views
+- ✅ Weekend duration selection (2-day, 3-day, 4-day weekends)
+- ✅ Theme customization and application
+
+** Activity Management:**
+- ✅ Activity category filtering and display
+- ✅ Adding activities to bucket
+- ✅ Managing weekend schedule (add/remove/edit activities)
+- ✅ Drag and drop interface functionality
+
+** Advanced Features:**
+- ✅ Mood tracking functionality
+- ✅ Holiday recommendations display
+- ✅ Smart integrations panel accessibility
+- ✅ Long weekend planning (3-4 days)
+
+**💾 Data & Performance:**
+- ✅ localStorage persistence functionality
+- ✅ Performance metrics and load time validation
+- ✅ Error handling with error boundaries
+
+**♿ Accessibility & UX:**
+- ✅ Responsive navigation elements
+- ✅ Basic accessibility features (ARIA, semantic HTML)
+- ✅ Visual richness with icons and categories
+- ✅ Weekend plan visual format display
+
+
+
+### Test Results Example
+```
+✅ Weekendly - Core Weekend Planner Tests
+  ✅ renders the Weekendly app successfully
+  ✅ allows navigation between browse and plan views
+  ✅ allows users to select different weekend durations
+  ✅ theme customization works properly
+  ✅ displays activity categories and allows filtering
+  ✅ can add activities to bucket
+  ✅ localStorage is available for data persistence
+  ✅ renders responsive navigation elements
+  ✅ supports basic accessibility features
+  ✅ loads within reasonable time and shows performance metrics
+  ✅ can manage weekend schedule
+  ✅ app handles errors gracefully with error boundary
+  ✅ can remove activities from weekend schedule
+  ✅ can edit activities in weekend schedule
+  ✅ displays weekend plan in proper visual format
+  ✅ mood tracking functionality works
+  ✅ holiday recommendations are displayed
+  ✅ smart integrations panel is accessible
+  ✅ visual richness with icons and categories
+  ✅ drag and drop interface functionality
+  ✅ app supports long weekend planning (3-4 days)
+
+Test Suites: 1 passed, 1 total
+Tests: 21 passed, 21 total
+```
+
+### Testing Strategy
+
+The test suite follows **behavior-driven testing** principles:
+- **User Journey Testing**: Tests follow actual user workflows
+- **Integration Testing**: Tests component interactions and data flow
+- **Accessibility Testing**: Ensures ARIA compliance and keyboard navigation
+- **Performance Testing**: Validates load times and responsiveness
+- **Error Handling**: Tests graceful degradation and error boundaries
+
+```
+
 ---
 Weekendly was built to not only fulfill the core requirements of the challenge -activity browsing, scheduling, editing, and visualization, but also to push further into the bonus and super-stretch layers, the project delivers both functional depth and an enjoyable user experience.
 
@@ -105,4 +207,3 @@ Video Link: https://www.loom.com/share/8949bf878016428eb00861c8ac034ef4?sid=4e1c
 Live Link: https://weekendly-omega.vercel.app/
 
 **Built with ❤️ by [Harshita Roonwal](https://www.linkedin.com/in/harshita-roonwal-a20085243/) for the Atlan Frontend Engineering Assignment.**
-

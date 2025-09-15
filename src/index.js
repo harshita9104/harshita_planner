@@ -15,7 +15,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('🚀 Service Worker registered successfully:', registration.scope);
+        console.log('Service Worker registered successfully:', registration.scope);
         
         // Listen for updates
         registration.addEventListener('updatefound', () => {
@@ -33,7 +33,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
         });
       })
       .catch((error) => {
-        console.error('❌ Service Worker registration failed:', error);
+        console.error(' Service Worker registration failed:', error);
       });
   });
 }
@@ -49,7 +49,7 @@ if (window.performance && window.performance.mark) {
     
     const measure = window.performance.getEntriesByName('app-load-time')[0];
     if (measure) {
-      console.log(`📊 App load time: ${Math.round(measure.duration)}ms`);
+      console.log(`App load time: ${Math.round(measure.duration)}ms`);
     }
   });
 }

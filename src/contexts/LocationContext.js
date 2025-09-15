@@ -30,10 +30,10 @@ export const LocationProvider = ({ children }) => {
     } catch (error) {
       console.error('Failed to get location:', error);
       setLocationPermission('denied');
-      // Set default location (New York City)
+      // Set default location 
       setUserLocation({
-        latitude: 40.7128,
-        longitude: -74.0060,
+        latitude: 28.6139,
+        longitude: 77.2090,
         isDefault: true
       });
     } finally {
@@ -43,7 +43,7 @@ export const LocationProvider = ({ children }) => {
 
   const formatLocation = () => {
     if (!userLocation) return 'Loading location...';
-    if (userLocation.isDefault) return 'Default Location (NYC)';
+    if (userLocation.isDefault) return 'Default Location (New Delhi)';
     return `${userLocation.latitude.toFixed(2)}, ${userLocation.longitude.toFixed(2)}`;
   };
 

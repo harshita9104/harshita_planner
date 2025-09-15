@@ -1,5 +1,5 @@
 /**
- * 🌟 Smart Integrations Service - External API Connections
+ * Smart Integrations Service - External API Connections
  * 
  * This service connects Weekendly with external APIs to enrich the user experience
  * with real-world data, making weekend planning more dynamic and contextual.
@@ -15,7 +15,7 @@
 class SmartIntegrationsService {
   constructor() {
     this.apiKeys = {
-      openWeather: 'demo_key', // In production, use environment variables
+      openWeather: 'demo_key', // use environment variables
       mapbox: 'demo_key',
       eventbrite: 'demo_key'
     };
@@ -82,12 +82,12 @@ class SmartIntegrationsService {
       console.warn('IP location failed, using default:', error.message);
     }
 
-    // Ultimate fallback: Default location (San Francisco)
+    // Ultimate fallback: Default location (New Delhi)
     const defaultLocation = {
-      lat: 37.7749,
-      lng: -122.4194,
-      city: 'San Francisco',
-      country: 'United States',
+      lat: 28.6139,
+      lng: 77.2090,
+      city: 'New Delhi',
+      country: 'India',
       source: 'default'
     };
 
@@ -98,7 +98,7 @@ class SmartIntegrationsService {
   // Reverse geocoding using multiple providers
   async reverseGeocode(lat, lng) {
     try {
-      // Try OpenStreetMap Nominatim (free)
+      // Try OpenStreetMap Nominatim 
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
         {

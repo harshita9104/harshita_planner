@@ -1,10 +1,10 @@
 import React from 'react';
 
 /**
- * 🌍 Real-time Services - Keeping Your Weekend Plans Current
+ * Real-time Services - Keeping Your Weekend Plans Current
  * 
  * This service handles real-time updates for time, weather, and location data.
- * I've designed it to be efficient and user-friendly, automatically updating
+ * designed it to be efficient and user-friendly, automatically updating
  * information without overwhelming the user with constant changes.
  */
 
@@ -73,11 +73,11 @@ export const weatherService = {
           });
         },
         (error) => {
-          // Fallback to a default location (New York City)
+          // Fallback to a default location 
           console.warn('Location access denied, using default location');
           resolve({
-            latitude: 40.7128,
-            longitude: -74.0060,
+            latitude: 28.6139,
+            longitude: 77.2090,
             accuracy: null,
             isDefault: true
           });

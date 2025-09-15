@@ -1,5 +1,5 @@
 /**
- * 🎭 Mood Tracking & Vibe Analysis Service
+ *  Mood Tracking & Vibe Analysis Service
  * 
  * This service provides sophisticated mood tracking and vibe analysis to help users
  * understand their preferences and get personalized recommendations based on their

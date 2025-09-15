@@ -1,5 +1,5 @@
 /**
- * 🗃️ Advanced Persistence Service - IndexedDB + Offline Support
+ * Advanced Persistence Service - IndexedDB + Offline Support
  * 
  * This service provides robust data persistence using IndexedDB for complex data
  * and localStorage for simple preferences. Includes offline support and data
@@ -70,7 +70,7 @@ class PersistenceService {
         };
       });
 
-      console.log('🗃️ Database initialized successfully');
+      console.log('Database initialized successfully');
       await this.migrateFromLocalStorage();
     } catch (error) {
       console.error('Database initialization failed:', error);
@@ -121,7 +121,7 @@ class PersistenceService {
         }
       }
 
-      console.log('✅ Migration from localStorage completed');
+      console.log('Migration from localStorage completed');
     } catch (error) {
       console.warn('Migration failed:', error);
     }
@@ -445,7 +445,7 @@ class PersistenceService {
   async syncPendingChanges() {
     if (!this.isOnline || this.pendingSync.length === 0) return;
 
-    console.log('🔄 Syncing offline changes...');
+    console.log('Syncing offline changes...');
 
     for (const change of this.pendingSync) {
       try {
@@ -457,7 +457,7 @@ class PersistenceService {
     }
 
     this.pendingSync = [];
-    console.log('✅ Sync completed');
+    console.log('Sync completed');
   }
 
   // Process individual change
@@ -580,7 +580,7 @@ class PersistenceService {
         }
       }
 
-      console.log('✅ Data import completed');
+      console.log('Data import completed');
       return true;
     } catch (error) {
       console.error('Import failed:', error);
