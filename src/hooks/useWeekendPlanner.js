@@ -7,7 +7,7 @@ import persistenceService from '../services/persistenceService';
 import moodTrackingService from '../services/moodTrackingService';
 
 /**
- * Weekend Planner Hook - The Brain of Our Application
+ * Weekend Planner Hook - The Brain of Application
  * 
  * This custom React hook manages all the complex state logic for our weekend planning app.
  * I've organized it to handle everything from drag-and-drop interactions. 
@@ -24,8 +24,9 @@ const useWeekendPlanner = () => {
   const [selectedTheme, setSelectedTheme] = useState('wellnessWarrior');
   const [weather, setWeather] = useState(null);
   const [weekendOption, setWeekendOption] = useState('twoDays');
+  //ensures "bucket" of activities are not lost when they close or refresh the page.
   const [scheduledActivities, setScheduledActivities] = useState(() => {
-    const saved = localStorage.getItem('weekendly-schedule');
+    const saved = localStorage.getItem('weekendly-schedule');//to check if there's any previously saved schedule
     const initialSchedule = {};
     weekendOptions[weekendOption].days.forEach(day => {
       initialSchedule[day] = [];
@@ -54,50 +55,96 @@ const useWeekendPlanner = () => {
     loadTime: 0,
     userEngagement: 0
   });
-
+//useeffect hooks run when scheduled activities and activity bucket changes 
+// Whenever a change is detected, the hook takes the current state object
+//converts it into a JSON string using JSON.stringify()
+//and saves it to localStorage under a specific key
   // Persist scheduled activities to local storage
   useEffect(() => {
     localStorage.setItem('weekendly-schedule', JSON.stringify(scheduledActivities));
   }, [scheduledActivities]);
 
-  // Persist activity bucket to local storage
   useEffect(() => {
     localStorage.setItem('weekendly-bucket', JSON.stringify(activityBucket));
   }, [activityBucket]);
 
-  // Fetch weather data based on user's geolocation
+  // Fetch weather data with caching support based on user's geolocation
   useEffect(() => {
-    const fetchWeather = async (latitude, longitude) => {
+    // New function to handle weather data with caching logic
+    const getWeather = async (location) => {
+      // Round coordinates to 6 decimal places to ensure consistent cache keys
+      // (6 decimal places = ~0.1 meter precision, sufficient for weather data)
+      const roundedLat = Number(location.latitude.toFixed(6));
+      const roundedLng = Number(location.longitude.toFixed(6));
+      const cacheKey = `weather_${roundedLat}_${roundedLng}`;
+
       try {
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode&timezone=auto`);
+        // Step 1: Check if weather data is already in the cache
+        console.log("🔍 Checking for cached weather data with key:", cacheKey);
+        console.log("📍 Original coords:", location, "Rounded coords:", { lat: roundedLat, lng: roundedLng });
+        const cachedWeatherData = await persistenceService.loadCachedEvents({ city: cacheKey });
+
+        if (cachedWeatherData) {
+          console.log("🌤️ Using cached weather data for better performance", cachedWeatherData);
+          setWeather(cachedWeatherData);
+          return;
+        } else {
+          console.log("📡 No cached weather data found, fetching from API...");
+        }
+
+        // Step 2: If not in cache or expired, fetch from the API
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${roundedLat}&longitude=${roundedLng}&daily=weathercode&timezone=auto`);
         if (!response.ok) {
           throw new Error('Failed to fetch weather data');
         }
+        
         const data = await response.json();
-        setWeather({
+        const newWeather = {
           saturday: data.daily.weathercode[0],
           sunday: data.daily.weathercode[1],
-        });
+        };
+
+        setWeather(newWeather);
+
+        // Step 3: Cache the new data with 2-hour expiration
+        try {
+          console.log("🔄 Attempting to cache weather data...", { cacheKey, newWeather });
+          await persistenceService.cacheEvents({ city: cacheKey }, newWeather, 2);
+          console.log("🌤️ Weather data fetched and cached successfully");
+        } catch (cacheError) {
+          console.warn("❌ Failed to cache weather data:", cacheError);
+          // Continue execution even if caching fails
+        }
+
       } catch (error) {
         console.error("Error fetching weather:", error);
+        // Maintain existing error behavior - no weather state update on error
       }
     };
 
-    const getLocation = () => {
+    // Updated async getLocation function to work with new caching logic
+    const getLocation = async () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (position) => {
-            fetchWeather(position.coords.latitude, position.coords.longitude);
+          async (position) => {
+            const location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            console.log("📍 Got location coordinates:", location);
+            await getWeather(location);
           },
           (error) => {
             console.error("Error getting location:", error);
             // Fallback to a default location if user denies access
-            fetchWeather(28.6139, 77.2090); // New Delhi
+            const defaultLocation = { latitude: 28.6139, longitude: 77.2090 };
+            getWeather(defaultLocation); // New Delhi
           }
         );
       } else {
         // Fallback to a default location if geolocation is not supported
-        fetchWeather(28.6139, 77.2090); // New Delhi
+        const defaultLocation = { latitude: 28.6139, longitude: 77.2090 };
+        getWeather(defaultLocation); // New Delhi
       }
     };
 
@@ -202,16 +249,17 @@ const useWeekendPlanner = () => {
     );
   };
 
-  // Check for time conflicts with existing activities
-  // Smart conflict detection - because nobody wants to be in two places at once!
+  //  function that checks if an activity will overlap with another one already on the schedule.
+  // .find() method to iterate through the activities already scheduled for that day.
   // This function checks if adding an activity would create a time overlap with existing ones.
-  // I'm using a clever time interval overlap algorithm that feels natural to understand.
+  // The function is wrapped in useCallback with scheduledActivities as a dependency. 
+  // This memoizes the function, preventing it from being recreated on every render
   const isConflict = useCallback((day, activity, newTime) => {
     const newStartTime = newTime || activity.time;
     const newEndTime = new Date(new Date(`1970-01-01T${newStartTime}`).getTime() + activity.duration * 60000).toTimeString().slice(0, 5);
 
     return scheduledActivities[day].find(a => {
-      // Skip checking against itself - that would be silly!
+      // Skip checking against itself 
       if (a.id === activity.id) return false;
       
       const existingStartTime = a.time;
@@ -248,7 +296,7 @@ const useWeekendPlanner = () => {
     toast.success(`${theme.name} added to plan`);
   };
 
-  // Handle drag start event for activities
+  //  records which activity is being dragged in the draggedActivity state
   const handleDragStart = (e, activity) => {
     setDraggedActivity(activity);
     setIsDragging(true);
@@ -266,13 +314,15 @@ const useWeekendPlanner = () => {
     }
   };
 
-  // Handle drag over event to allow dropping
+  // Handle drag over event - to allow dropping
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
-  // Handle drop event on schedule days
+  // which is triggered when you release the mouse. It takes the draggedActivity
+  //  checks for scheduling conflicts on the new day using the isConflict function
+  // and then updates the scheduledActivities state to reflect the move.
   const handleDrop = (e, day) => {
     e.preventDefault();
     if (draggedActivity) {
@@ -371,6 +421,9 @@ const useWeekendPlanner = () => {
   }, [activityBucket, currentMood]);
 
   // Holiday-aware weekend planning
+  // calls holidayservice,finding holidays for next 60 days into the future for the user's specific location.
+  // if there is upcoming holiday it takes first holiday and checks for long weekend opportunity property
+  //if found it constructs a suggestion object with details about the holiday
   const suggestLongWeekendPlan = useCallback(async () => {
     try {
       const upcomingHolidays = holidayService.getUpcomingLongWeekends(60, userLocation); // Next 60 days
@@ -406,6 +459,9 @@ const useWeekendPlanner = () => {
   }, []);
 
   // Enhanced local event integration
+  //If the user is offline, it doesn't even try to make a network request. 
+  // Instead, it immediately calls persistenceService.loadCachedEvents() to retrieve any previously saved events. 
+  // If the user is online, fetch fresh data give response and save data for offline use
   const discoverNearbyEvents = useCallback(async (category = 'all') => {
     if (!userLocation || isOfflineMode) {
       // Try to load cached events
@@ -438,7 +494,10 @@ const useWeekendPlanner = () => {
     initializeAdvancedFeatures();
   }, []);
 
-  // Monitor online/offline status
+// online/offline status
+  // hook continuously monitors the browser's network status.
+  // When the browser detects a change in connectivity, the corresponding event fires
+  //  and the handler function (handleOnline/ handleOffline) updates the isOfflineMode boolean state
   useEffect(() => {
     const handleOnline = () => setIsOfflineMode(false);
     const handleOffline = () => setIsOfflineMode(true);
@@ -452,7 +511,8 @@ const useWeekendPlanner = () => {
     };
   }, []);
 
-  // Initialize all advanced features
+  //  main startup function that runs once when the hook is mounted. 
+  //  loading of all data needed for the app's "smart" capabilities.
   const initializeAdvancedFeatures = useCallback(async () => {
     const startTime = performance.now();
     
@@ -461,7 +521,7 @@ const useWeekendPlanner = () => {
       const location = await smartIntegrationsService.getCurrentLocation();
       setUserLocation(location);
       
-      // Set location for holiday service to detect correct region
+      // Set user location for holiday service to detect correct region
       holidayService.setUserLocation(location);
       
       // Load holiday recommendations
@@ -815,7 +875,6 @@ const useWeekendPlanner = () => {
 
   // Smart recommendation system based on user preferences and activity patterns
   // I built this to learn from your choices and suggest activities you'll actually enjoy.
-  // It's like having a friend who really knows your taste in weekend activities.
   const generateSmartRecommendations = useCallback(() => {
     const allActivities = getAllActivities();
     const currentActivities = Object.values(scheduledActivities).flat();
