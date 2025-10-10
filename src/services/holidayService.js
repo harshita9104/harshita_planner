@@ -2,8 +2,9 @@
  * Holiday Awareness Service - Smart Weekend Planning
  * 
  * This service provides intelligent holiday detection and long weekend suggestions.
- * It helps users discover upcoming opportunities for extended weekend planning,
- * making Weekendly proactive rather than reactive.
+ * first tries to use the browser's Geolocation API to get precise coordinates. If that's not available or if the user denies permission, 
+ * I have a fallback that uses their browser's timezone to make an educated guess about their region. 
+ * This allows the app to fetch and use a pre-defined set of holidays for specific regions like the US, India
  * 
  * Features:
  * • Automatic holiday detection for multiple countries based on user location
@@ -148,8 +149,8 @@ class HolidayService {
     this.userRegion = 'india';
     console.log(`Region set to: ${this.userRegion.toUpperCase()}`);
   }
-
-  // Detect region based on latitude/longitude coordinates
+  // Detect region based on latitude/longitude coordinates 
+  //It iterates through a pre-defined map of latitude and longitude bounds for different countries to determine which region the user is in
   detectRegionFromLocation(location) {
     console.log(` Detecting region from location:`, location);
     
@@ -225,7 +226,7 @@ class HolidayService {
     }
   }
 
-  // Get current season with enhanced logic
+  //determines the current season by checking the month and the user's region
   getCurrentSeason() {
     const month = new Date().getMonth() + 1;
     
@@ -247,7 +248,8 @@ class HolidayService {
     return seasonalSuggestions.spring; // Fallback
   }
 
-  // Find upcoming long weekends with intelligent analysis
+  // Find upcoming long weekends 
+  //first get the user's region. Then, it filters the relevant holidays to find those that fall within the specified lookAheadDays
   getUpcomingLongWeekends(lookAheadDays = 90, userLocation = null) {
     // Update location if provided
     if (userLocation) {
@@ -427,3 +429,4 @@ class HolidayService {
 
 // Export singleton instance
 export default new HolidayService();
+
