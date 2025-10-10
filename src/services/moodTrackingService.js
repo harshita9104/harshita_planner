@@ -1,16 +1,10 @@
 /**
  *  Mood Tracking & Vibe Analysis Service
  * 
- * This service provides sophisticated mood tracking and vibe analysis to help users
- * understand their preferences and get personalized recommendations based on their
- * emotional patterns and desired experiences.
- * 
- * Features:
- * • Comprehensive mood tracking with multiple dimensions
- * • Vibe analysis and pattern recognition
- * • Personalized recommendations based on mood history
- * • Emotional journey mapping and insights
- * • Social mood sharing and comparison
+ * a system that records not just the user's mood but also the context around it, such as the time of day and weather.
+ *  This data is stored in a moodHistory map and is analyzed over time to identify patterns, allowing the app to learn the user's preferences. 
+ * When a user tracks their mood, the service immediately generates a list of activities that are a great match for how they're feeling. 
+ * Over time, the service analyzes this data to identify patterns—for example, which moods are most common at certain times of the day or in specific weather conditions. 
  */
 
 // Enhanced mood and vibe definitions
@@ -192,13 +186,13 @@ export const vibeCategories = {
     duration: 'extended'
   }
 };
-
+//moodhistory is a map that has entry of each mood user logs, and details like the time of day, planned activities, and location.
 class MoodTrackingService {
   constructor() {
     this.moodHistory = new Map();
     this.vibePatterns = new Map();
     this.recommendations = new Map();
-    this.loadMoodData();
+    this.loadMoodData();// to retrieve any previously saved data 
   }
 
   // Load existing mood data
@@ -231,6 +225,8 @@ class MoodTrackingService {
   }
 
   // Track user's current mood
+  //It creates a new moodEntry object with a unique ID and a timestamp.
+  // put information like the current weather, planned activities, and user's location, then stores this entry 
   async trackMood(moods, context = {}) {
     const moodEntry = {
       id: `mood_${Date.now()}`,
@@ -262,7 +258,8 @@ class MoodTrackingService {
     return moodEntry;
   }
 
-  // Update vibe patterns for learning
+  // Update vibe patterns for learning from user's past moods and choices
+  // For every mood in a new moodEntry, it updates a pattern object in the vibePatterns map. 
   updateVibePatterns(moodEntry) {
     moodEntry.moods.forEach(mood => {
       const pattern = this.vibePatterns.get(mood) || {
@@ -275,8 +272,7 @@ class MoodTrackingService {
       };
 
       pattern.frequency++;
-      
-      // Track context patterns
+      // Track context patterns - It increments the mood's frequency and tracks how often it occurs in different contexts, such as by timeOfDay or season
       const timeOfDay = moodEntry.context.timeOfDay;
       pattern.timePatterns[timeOfDay] = (pattern.timePatterns[timeOfDay] || 0) + 1;
 
@@ -291,6 +287,7 @@ class MoodTrackingService {
   }
 
   // Get personalized mood-based recommendations
+  // It iterates through the moods logged in the moodEntry and uses the pre-defined moodDefinitions to get a list of suggested activities
   generateMoodBasedRecommendations(moodEntry) {
     const recommendations = [];
 
@@ -302,7 +299,7 @@ class MoodTrackingService {
       const activities = moodDef.suggestedActivities;
 
       // Enhance with context-aware filtering
-      const contextualActivities = this.filterActivitiesByContext(activities, moodEntry.context);
+      const contextualActivities = this.filterActivitiesByContext(activities, moodEntry.context);//removes activities that don't make sense for the current situation like suggesting a beach day when the weather is rainy
 
       // Add complementary mood suggestions
       const complementaryMoods = moodDef.complementary || [];
@@ -323,7 +320,8 @@ class MoodTrackingService {
     return recommendations;
   }
 
-  // Filter activities based on context
+  // Filter activities - It iterates through a list of suggested activities and filters them based on the provided context.
+  //For example, it checks if the time of day is evening and the activity is a sunrise-yoga, and removes it. 
   filterActivitiesByContext(activities, context) {
     return activities.filter(activity => {
       // Time of day filtering
@@ -389,7 +387,7 @@ class MoodTrackingService {
     return Math.min(confidence, 1.0);
   }
 
-  // Get mood insights and patterns
+  //  It analyzes the moodHistory for a specific timeRange to find patterns calculates the user's dominant moods, time patterns, and weather influences.
   getMoodInsights(timeRange = 30) {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - timeRange);
@@ -429,7 +427,7 @@ class MoodTrackingService {
       .sort(([,a], [,b]) => b - a)
       .slice(0, 3);
 
-    // Generate insights
+    // This provides the user with valuable insights into their own emotional habits.
     const insights = {
       dominantMoods: sortedMoods.map(([mood, count]) => ({
         mood,
@@ -672,3 +670,4 @@ class MoodTrackingService {
 
 // Export singleton instance
 export default new MoodTrackingService();
+
