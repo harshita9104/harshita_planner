@@ -6,10 +6,14 @@
  * synchronization capabilities for a seamless user experience.
  * 
  * Features:
- * • IndexedDB for complex data structures
+ * • IndexedDB for complex data structures- IndexedDB is a more powerful, asynchronous, and transactional database built into the browser. 
+ * IndexedDB operations are asynchronous, so they don't block the main thread. This is handled by the browser's Event Loop, 
+ * which allows the application to remain responsive while database operations run in the background.
+ * The localStorage API is a simple, synchronous key-value store.
+ * in localstorage the browser's main thread is blocked until the read or write operation is complete. This can cause the user interface to freeze
  * • Offline-first architecture
- * • Data versioning and migration
- * • Automatic backup and restore
+ * • Automatic backup and restore -  cache is a temporary storage location for frequently accessed data
+ *  save data from an external API, like local events, to an IndexedDB object store with an expiration timestamp.If a user is offline, the app can load cached events
  * • Performance optimization for 50+ activities
  */
 
@@ -25,19 +29,19 @@ class PersistenceService {
     this.setupOfflineDetection();
   }
 
-  // Initialize IndexedDB with proper schema
+  // Initialize IndexedDB and defines its schema
   async initializeDatabase() {
     try {
       this.db = await new Promise((resolve, reject) => {
-        const request = indexedDB.open(this.dbName, this.version);
+        const request = indexedDB.open(this.dbName, this.version);//asynchronous and event-driven API.
 
         request.onerror = () => reject(request.error);
         request.onsuccess = () => resolve(request.result);
 
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
-          
-          // Create object stores if they don't exist
+          // Create different object stores (similar to tables), like weekendPlans
+          // and define indexes on fields like theme to enable fast, efficient querying.
           if (!db.objectStoreNames.contains('weekendPlans')) {
             const planStore = db.createObjectStore('weekendPlans', { keyPath: 'id', autoIncrement: true });
             planStore.createIndex('userId', 'userId', { unique: false });
@@ -79,11 +83,11 @@ class PersistenceService {
     }
   }
 
-  // Setup offline detection and sync
+  //adds event listeners to the window object to monitor the user's online/offline status.
   setupOfflineDetection() {
     window.addEventListener('online', () => {
       this.isOnline = true;
-      this.syncPendingChanges();
+      this.syncPendingChanges();//called when device comes back online to handle pending changes
     });
 
     window.addEventListener('offline', () => {
@@ -91,7 +95,7 @@ class PersistenceService {
     });
   }
 
-  // Migrate existing localStorage data to IndexedDB
+  // Migrate- automatically detects and moves any old data from localStorage to the new IndexedDB database.
   async migrateFromLocalStorage() {
     try {
       const existingSchedule = localStorage.getItem('weekendly-schedule');
@@ -127,7 +131,9 @@ class PersistenceService {
     }
   }
 
-  // Save weekend plan with versioning
+  // Save user plan to object store with versioning
+  //uses a transaction to ensure that the plan is saved completely.
+  //If operation to save fails, transaction is aborted, and no partial data is saved
   async saveWeekendPlan(planData) {
     const plan = {
       ...planData,
@@ -160,7 +166,7 @@ class PersistenceService {
     }
   }
 
-  // Load weekend plans with filtering and sorting
+  //Retrieves saved plans, with support for filtering and sorting.
   async loadWeekendPlans(filters = {}) {
     try {
       if (this.db) {
@@ -168,7 +174,7 @@ class PersistenceService {
         const store = transaction.objectStore('weekendPlans');
         
         let plans = [];
-        const request = store.getAll();
+        const request = store.getAll();//to retrieve all plans
         
         plans = await new Promise((resolve, reject) => {
           request.onsuccess = () => resolve(request.result);
@@ -204,6 +210,8 @@ class PersistenceService {
   }
 
   // Save custom activities for performance with 50+ activities
+  //takes an activity object enhances it with unique id and timestamp and saves it in activities object store in indexDB
+  //uses an asynchronus readwrite transaction on the activities object, Ui remain responsive since operations are async
   async saveCustomActivity(activity) {
     const enhancedActivity = {
       ...activity,
@@ -217,7 +225,7 @@ class PersistenceService {
       if (this.db) {
         const transaction = this.db.transaction(['activities'], 'readwrite');
         const store = transaction.objectStore('activities');
-        await store.put(enhancedActivity);
+        await store.put(enhancedActivity);//either add new activity or update existing one
         
         await this.logAction('create_activity', { activityId: enhancedActivity.id });
         
@@ -234,17 +242,19 @@ class PersistenceService {
     }
   }
 
-  // Load activities with performance optimization
+  // Load activities-  Instead of loading all activities at once with store.getAll(),may lead to processing power for a large store 
+  // so cursor is used it is a pointer that iterates through the database one record at a time.
   async loadActivities(limit = 100, offset = 0) {
     try {
       if (this.db) {
         const transaction = this.db.transaction(['activities'], 'readonly');
         const store = transaction.objectStore('activities');
-        
-        // Use cursor for efficient pagination
+        // Use cursor for efficient pagination- loads small chunk of data at a time
         const activities = [];
         let skipped = 0;
-        
+        //It "skips" records until it reaches the desired offset
+//and then only pushes records to the activities array until the limit is met.
+// This is an asynchronous and non-blocking operation, which keeps the UI from freezing.
         return new Promise((resolve, reject) => {
           const request = store.openCursor();
           
@@ -329,7 +339,8 @@ class PersistenceService {
     }
   }
 
-  // Cache external events with expiration
+  // Cache - save and retrieve data from external APIs to the cachedEvents object store in IndexedDB
+  //saves the event data with a timestamp and an expiration time.  
   async cacheEvents(location, events, expiryHours = 2) {
     const cacheEntry = {
       id: `events_${location.city}`,
@@ -343,29 +354,57 @@ class PersistenceService {
       if (this.db) {
         const transaction = this.db.transaction(['cachedEvents'], 'readwrite');
         const store = transaction.objectStore('cachedEvents');
-        await store.put(cacheEntry);
+        
+        // Properly wrap the IndexedDB operation in a Promise
+        await new Promise((resolve, reject) => {
+          const request = store.put(cacheEntry);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        
+        console.log('✅ Successfully cached events:', cacheEntry.id);
       }
     } catch (error) {
       console.error('Failed to cache events:', error);
+      throw error; // Re-throw to allow caller to handle
     }
   }
 
-  // Load cached events
+  // Load cached events- when loading cached event data when user is offline 
+  // it checks if data is still valid by comparing time to expiration time
   async loadCachedEvents(location) {
     try {
       if (this.db) {
+        const lookupKey = `events_${location.city}`;
+        console.log('🔍 Looking up cache with key:', lookupKey);
+        
         const transaction = this.db.transaction(['cachedEvents'], 'readonly');
         const store = transaction.objectStore('cachedEvents');
-        const request = store.get(`events_${location.city}`);
+        const request = store.get(lookupKey);
         
         const result = await new Promise((resolve, reject) => {
           request.onsuccess = () => resolve(request.result);
           request.onerror = () => reject(request.error);
         });
         
-        if (result && new Date(result.expiresAt) > new Date()) {
-          return result.events;
+        console.log('📦 Cache lookup result:', result);
+        
+        if (result) {
+          const now = new Date();
+          const expiresAt = new Date(result.expiresAt);
+          console.log('⏰ Cache expiry check:', { now: now.toISOString(), expiresAt: expiresAt.toISOString(), isValid: expiresAt > now });
+          
+          if (expiresAt > now) {
+            console.log('✅ Cache is valid, returning cached data');
+            return result.events;
+          } else {
+            console.log('⚠️ Cache has expired');
+          }
+        } else {
+          console.log('❌ No cache entry found');
         }
+      } else {
+        console.log('❌ Database not available');
       }
       return null;
     } catch (error) {
@@ -374,7 +413,8 @@ class PersistenceService {
     }
   }
 
-  // Log user actions for analytics
+  // Log user actions- It creates a timestamped log entry 
+  //and uses an add operation within a readwrite transaction to insert it into the eventHistory object store
   async logAction(action, metadata = {}) {
     const logEntry = {
       action,
@@ -395,7 +435,8 @@ class PersistenceService {
     }
   }
 
-  // Analytics and insights
+  // Analytics - It uses an index on the timestamp field to efficiently query a specific date range. 
+  // It then iterates through the results to count total actions, unique sessions
   async getUsageAnalytics(days = 30) {
     try {
       if (this.db) {
@@ -591,3 +632,4 @@ class PersistenceService {
 
 // Export singleton instance
 export default new PersistenceService();
+
