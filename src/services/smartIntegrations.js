@@ -500,3 +500,4 @@ class SmartIntegrationsService {
 
 // Export singleton instance
 export default new SmartIntegrationsService();
+
