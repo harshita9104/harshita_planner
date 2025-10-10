@@ -9,6 +9,8 @@ import React from 'react';
  */
 
 // Real-time clock hook
+//state- current time updates every second due to setInterval timeout 
+//get the current time, format it, and create a greeting based on the time of day.
 export const useRealTime = () => {
   const [currentTime, setCurrentTime] = React.useState(new Date());
 
@@ -17,7 +19,7 @@ export const useRealTime = () => {
       setCurrentTime(new Date());
     }, 1000); // Update every second
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer);//By clearing the interval, we prevent the timer from continuing to run in the background, which would cause a memory leak.
   }, []);
 
   const formatTime = (date) => {
@@ -37,7 +39,7 @@ export const useRealTime = () => {
       day: 'numeric'
     });
   };
-
+//provide a dynamic greeting based on the time of day.
   const getGreeting = () => {
     const hour = currentTime.getHours();
     if (hour < 12) return 'Good Morning';
@@ -54,9 +56,9 @@ export const useRealTime = () => {
   };
 };
 
-// Enhanced weather service with more detailed forecasts
+// weather service with more detailed forecasts
 export const weatherService = {
-  // Get user's current location
+  //using asynchronous function gets the user's latitude and longitude using the browser's navigator.geolocation API, if user denies access fallback to default location
   async getCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -91,7 +93,8 @@ export const weatherService = {
     });
   },
 
-  // Get detailed weather forecast
+  // Get detailed weather forecast- fetches a detailed, 7-day weather forecast from a real API based on the provided location. 
+  //It includes a try-catch block to handle potential API failures 
   async getDetailedWeather(latitude, longitude) {
     try {
       const response = await fetch(
@@ -134,7 +137,7 @@ export const weatherService = {
     } catch (error) {
       console.error('Weather fetch failed:', error);
       
-      // Return mock weather data if API fails
+      //returns mock data as a fallback to prevent the application from breaking.
       return {
         current: {
           temperature: 22,
