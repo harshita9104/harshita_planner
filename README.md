@@ -1,6 +1,5 @@
-# 🎯 Weekendly – Atlan Frontend Assignment
+# 🎯 Weekendly 
 
-Weekendly is an interactive weekend planner built for the Atlan Frontend Engineering Challenge.  
 It helps users design their perfect weekend by browsing activities, assigning moods, and arranging them into a personalized Saturday–Sunday schedule.  
 
 ---
@@ -209,4 +208,4 @@ Video Link: https://www.loom.com/share/8949bf878016428eb00861c8ac034ef4?sid=4e1c
 
 Live Link: https://weekendly-omega.vercel.app/
 
-**Built with ❤️ by [Harshita Roonwal](https://www.linkedin.com/in/harshita-roonwal-a20085243/) for the Atlan Frontend Engineering Assignment.**
+**Built with ❤️ by [Harshita Roonwal](https://www.linkedin.com/in/harshita-roonwal-a20085243/) .**
